@@ -9,6 +9,7 @@ import Payment from "./Payment.js";
 import Cart from "./Cart.js";
 import User from "./User.js"; // Assuming User model exists
 import Shipment from "./Shipment.js";
+import ChatMessage from './ChatMessage.js';
 
 // Define relationships
 Product.hasMany(ProductColor, { foreignKey: "productId" });
@@ -55,19 +56,12 @@ ProductSize.hasMany(OrderItem, { foreignKey: "productSizeId" });
 User.hasMany(ProductReview, { foreignKey: 'userId', as: 'reviews' });
 ProductReview.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+// Define relationships for User and ChatMessage
+User.hasMany(ChatMessage, { foreignKey: "senderId", as: "sentMessages" });
+User.hasMany(ChatMessage, { foreignKey: "receiverId", as: "receivedMessages" });
 
-// models/OrderItem.js
-// OrderItem.belongsTo(ProductSize, {
-//   as: "ProductSize", // Alias di sini
-//   foreignKey: "productSizeId",
-// });
-
-// // models/ProductSize.js
-// ProductSize.hasMany(OrderItem, {
-//   as: "OrderItems", // Alias untuk relasi balik
-//   foreignKey: "productSizeId",
-// });
-
+ChatMessage.belongsTo(User, { foreignKey: "senderId", as: "sender" });
+ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 
 export {
   Product,
@@ -81,4 +75,5 @@ export {
   Cart,
   User,
   Shipment,
+  ChatMessage
 };

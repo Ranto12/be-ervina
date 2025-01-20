@@ -46,7 +46,6 @@ const adminLogin = async (req, res) => {
 // Register untuk User
 const userRegister = async (req, res) => {
   const {name, email, password } = req.body;
-  console.log(name, 'cek name')
   try {
     const hashedPassword = bcrypt.hashSync(password, 10);
     const admin = await User.create({ name, email, password: hashedPassword, role: 'user' });
@@ -97,7 +96,9 @@ const getUserById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id, {
+      attributes: ["name", "email", "address", "about"]
+    });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -107,5 +108,32 @@ const getUserById = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, address, about } = req.body;
 
-export { userLogin, adminLogin, userRegister, adminRegister, getUsersByRole, getUserById };
+  try {
+    // Find user by id
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user fields (filtering undefined values to prevent updating with null/undefined)
+    const updatedUser = await user.update({
+      name: name || user.name,
+      email: email || user.email,
+      address: address || user.address,
+      about: about || user.about,
+    });
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error updating user" });
+  }
+}
+
+
+export { userLogin, adminLogin, userRegister, adminRegister, getUsersByRole, getUserById, updateUser };

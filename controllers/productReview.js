@@ -207,6 +207,32 @@ const getAllProductReview = async (req, res) => {
   }
 };
 
+// Get Reviews by Order ID
+const getReviewsByOrderId = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const reviews = await ProductReview.findAll({
+      where: { orderId },
+      attributes: ["reviewText"],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email"],
+        },
+      ],
+    });
 
+    res.status(200).json({
+      message: "Reviews retrieved successfully",
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving reviews",
+      error: error.message,
+    });
+  }
+};
 
-export {createReview, updateReview, removeReview, getReviewsByProductId, getReviewsByUserId, getReviewByProductAndOrder, getAllProductReview}
+export {createReview, updateReview, removeReview, getReviewsByProductId, getReviewsByUserId, getReviewByProductAndOrder, getAllProductReview, getReviewsByOrderId}

@@ -1,4 +1,4 @@
-import { Cart, Product, ProductColor, ProductImage, ProductSize } from "../models/index.js";
+import { Cart, Product, ProductImage, ProductSize } from "../models/index.js";
 
 // Add a product to the cart
 const addToCart = async (req, res) => {

@@ -9,6 +9,12 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('admin', 'user'),
     defaultValue: 'user',
   },
+  address: {
+    type: DataTypes.STRING, allowNull: true
+  },
+  about:{
+    type: DataTypes.STRING, allowNull: true
+  }
 
 }, { tableName: 'users', timestamps: true, freezeTableName: true });
 

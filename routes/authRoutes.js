@@ -1,5 +1,5 @@
 import express from 'express';
-import { userLogin, adminLogin, userRegister, adminRegister, getUserById, getUsersByRole } from '../controllers/authController.js';
+import { userLogin, adminLogin, userRegister, adminRegister, getUserById, getUsersByRole, updateUser } from '../controllers/authController.js';
 import { authenticate, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -11,6 +11,7 @@ router.post('/register', userRegister);
 // Routes untuk login dan register Admin
 router.post('/login/admin', adminLogin);
 router.post('/register/admin', adminRegister);
+router.post('/update/:id', updateUser);
 
 // Routes untuk mendapatkan semua pengguna berdasarkan role
 router.get('/users', getUsersByRole);
