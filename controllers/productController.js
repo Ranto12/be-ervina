@@ -12,9 +12,9 @@ import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 
 cloudinary.config({
-  cloud_name: "dyv7frz3h",
-  api_key: "341577725213344",
-  api_secret: "oDWpvnA5eilDr6fC6p_uQMeFRCY",
+  cloud_name: "dxkl9jrkp",
+  api_key: "696654727616992",
+  api_secret: "dzXRs_VY1hZXmaxuHb8heTh26WE",
 });
 
 
