@@ -107,7 +107,7 @@ const updateProduct = async (req, res) => {
     }
 
     const { id } = req.params; // Ambil ID produk dari parameter URL
-    const { name, category, price, details, status, colors, sizes, removeImages } = req.body;
+    const { name, category, price, details, status, colors, sizes, removeProductSize, removeImages } = req.body;
 
     try {
       // Cari produk berdasarkan ID
@@ -131,13 +131,37 @@ const updateProduct = async (req, res) => {
 
       // Update ukuran produk
       if (sizes) {
-        await ProductSize.destroy({ where: { productId: id } }); // Hapus ukuran lama
-        const sizeRecords = JSON.parse(sizes).map((size) => ({
-          productId: id,
-          size: size.size,
-          stock: size.stock,
-        }));
-        await ProductSize.bulkCreate(sizeRecords); // Tambahkan ukuran baru
+        const sizeData = JSON.parse(sizes); // Parsing data ukuran dari request
+
+        // Tambahkan ukuran baru (id === 0)
+        const sizesToAdd = sizeData.filter((size) => size.id === 0);
+        if (sizesToAdd.length > 0) {
+          const sizeRecords = sizesToAdd.map((size) => ({
+            productId: id,
+            size: size.size,
+            stock: size.stock,
+          }));
+          await ProductSize.bulkCreate(sizeRecords); // Tambahkan ukuran baru
+        }
+
+        // Perbarui ukuran lama (id !== 0)
+        const sizesToUpdate = sizeData.filter((size) => size.id !== 0);
+        for (const size of sizesToUpdate) {
+          await ProductSize.update(
+            { size: size.size, stock: size.stock },
+            { where: { id: size.id, productId: id } }
+          );
+        }
+      }
+
+      // Hapus ukuran berdasarkan `removeProductSize`
+      if (removeProductSize) {
+        const removeIds = JSON.parse(removeProductSize);
+        if (removeIds.length > 0) {
+          await ProductSize.destroy({
+            where: { id: removeIds, productId: id },
+          });
+        }
       }
 
       // Hapus gambar berdasarkan URL (removeImages)
@@ -182,6 +206,7 @@ const updateProduct = async (req, res) => {
   });
 };
 
+
 const getProductById = async (req, res) => {
   const { id } = req.params; // Ambil ID dari parameter URL
 
@@ -195,7 +220,7 @@ const getProductById = async (req, res) => {
         },
         {
           model: ProductSize,
-          attributes: ["size", "stock", "productId", "id"], // Ambil ukuran dan stok
+          attributes: ["size", "stock", "id"], // Ambil ukuran dan stok
         },
         {
           model: ProductImage,
