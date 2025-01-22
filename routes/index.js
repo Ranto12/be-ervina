@@ -7,6 +7,7 @@ import CartRoutes from './cartRoutes.js'
 import ShipmentRoutes from './ShipmentRoutes.js'
 import ProductReview from './productReviewRoutes.js'
 import ChatRouter from './chatRoutes.js'
+import ImagesPayment from './imagesPayment.js'
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/cart", CartRoutes)
 router.use("/shipments", ShipmentRoutes)
 router.use("/reviews", ProductReview)
 router.use("/messages", ChatRouter)
+router.use("/imagesPayment", ImagesPayment)
 
 export default router

@@ -2,33 +2,28 @@ import { Order, Shipment } from "../models/index.js";
 
 // Create a shipment for an order
 const createShipment = async (req, res) => {
-  const { orderId, trackingNumber, shippingMethod, shippingStatus, estimatedDeliveryDate } = req.body;
+  const { trackingNumber, shippingMethod = "JNT", address, orderId, cost } = req.body;
 
   try {
-    // Find the order by ID
+    // Validasi keberadaan Order
     const order = await Order.findOne({ where: { id: orderId } });
-
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Create the shipment
+    // Buat Shipment baru
     const shipment = await Shipment.create({
-      orderId,
       trackingNumber,
       shippingMethod,
-      shippingStatus,
-      estimatedDeliveryDate,
+      address,
+      cost,
+      orderId,
+      shippingStatus: "Delivered"
     });
 
-    // Update the order status to "Shipped"
-    order.status = "Shipped";
-    await order.save();
-
     res.status(201).json({
-      message: "Shipment created successfully and order marked as shipped",
+      message: "Shipment created successfully",
       shipment,
-      order,
     });
   } catch (error) {
     res.status(500).json({

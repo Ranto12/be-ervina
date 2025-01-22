@@ -10,6 +10,8 @@ import Cart from "./Cart.js";
 import User from "./User.js"; // Assuming User model exists
 import Shipment from "./Shipment.js";
 import ChatMessage from './ChatMessage.js';
+import ImagesPayment from "./ImagesPaymen.js";
+import ReturnShipment from "./ReturnShipment.js";
 
 // Define relationships
 Product.hasMany(ProductColor, { foreignKey: "productId" });
@@ -63,6 +65,14 @@ User.hasMany(ChatMessage, { foreignKey: "receiverId", as: "receivedMessages" });
 ChatMessage.belongsTo(User, { foreignKey: "senderId", as: "sender" });
 ChatMessage.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 
+// Membuat asosiasi antara ImagesPayment dan Payment
+Payment.hasMany(ImagesPayment, { foreignKey: "paymentId", as: "images" });
+ImagesPayment.belongsTo(Payment, { foreignKey: "paymentId" });
+
+// Establish relationship
+ReturnShipment.belongsTo(Order, { foreignKey: "orderId" }); // A ReturnShipment belongs to one Order
+Order.hasOne(ReturnShipment, { foreignKey: "orderId" }); // An Order has one ReturnShipment
+
 export {
   Product,
   ProductColor,
@@ -75,5 +85,7 @@ export {
   Cart,
   User,
   Shipment,
-  ChatMessage
+  ChatMessage,
+  ImagesPayment,
+  ReturnShipment,
 };

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Cart, Order, OrderItem, Payment, Product, ProductSize, Shipment } from "../models/index.js";
+import { Cart, ImagesPayment, Order, OrderItem, Payment, Product, ProductSize, ReturnShipment, Shipment } from "../models/index.js";
 import { Sequelize, where } from "sequelize";
 
 const createOrder = async (req, res) => {
@@ -182,11 +182,19 @@ const getOrderDetails = async (req, res) => {
         {
           model: Payment,
           attributes: [
+             "id",
             "paymentMethod",
             "amount",
             "paymentStatus",
             "paymentDate",
-            "paymentCode",
+            "paymentCode"
+          ],
+          include: [
+            {
+              model: ImagesPayment,
+              as: "images",
+              attributes: ["id", "url"], // Menampilkan data gambar pembayaran
+            },
           ],
         },
         {
@@ -200,6 +208,9 @@ const getOrderDetails = async (req, res) => {
             "actualDeliveryDate",
           ],
         },
+        {
+          model: ReturnShipment,
+        }
       ],
     });
 
@@ -263,6 +274,9 @@ const getOrders = async (req, res) => {
             "actualDeliveryDate",
           ],
         },
+        {
+          model: ReturnShipment,
+        }
       ],
       limit, 
       offset,

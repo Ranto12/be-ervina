@@ -59,4 +59,38 @@ const makePayment = async (req, res) => {
   }
 };
 
-export { makePayment };
+const updatePaymentStatus = async (req, res) => {
+  const { paymentId, paymentStatus } = req.body;
+
+  try {
+    // Find the payment by ID
+    const payment = await Payment.findOne({ where: { id: paymentId } });
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    // Update the payment status
+    payment.paymentStatus = paymentStatus;
+
+    // Optionally, update the payment date if marking as "Completed"
+    if (paymentStatus === "Completed") {
+      payment.paymentDate = new Date(); // Record the payment date
+    }
+
+    await payment.save();
+
+    res.status(200).json({
+      message: `Payment status updated successfully to "${paymentStatus}"`,
+      payment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating payment status",
+      error: error.message,
+    });
+  }
+};
+
+
+export { makePayment, updatePaymentStatus };
