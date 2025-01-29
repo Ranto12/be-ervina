@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { Cart, ImagesPayment, Order, OrderItem, Payment, Product, ProductSize, ReturnShipment, Shipment } from "../models/index.js";
-import { Sequelize, where } from "sequelize";
+import { Sequelize } from "sequelize";
 
 const createOrder = async (req, res) => {
   const {
@@ -14,6 +14,7 @@ const createOrder = async (req, res) => {
     rentalDuration,
     metodePayment,
     cartIds,
+    ongkir
   } = req.body;
 
   try {
@@ -26,7 +27,7 @@ const createOrder = async (req, res) => {
     const totalAmount = products.reduce(
       (sum, product) => sum + product.price * product.quantity * rentalDuration,
       0
-    );
+    ) + ongkir;
 
     // Create order
     const order = await Order.create({

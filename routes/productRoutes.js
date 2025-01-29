@@ -9,6 +9,6 @@ router.post("/add", addProduct);
 router.post("/update/:id", updateProduct);
 router.get("/getById/:id", getProductById);
 router.get("/", getAllProducts);
-router.post("/:id", deleteProduct);
+router.post("/delete/:id", deleteProduct);
 
 export default router;

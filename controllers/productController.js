@@ -6,6 +6,7 @@ import {
   ProductColor,
   ProductSize,
   ProductImage,
+  OrderItem,
 } from "../models/index.js";
 
 import { v2 as cloudinary } from "cloudinary";
@@ -283,11 +284,13 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    
     // Periksa apakah produk terkait dengan order
-    const existingOrders = await Order.findOne({ where: { productId: id } });
+    const existingOrders = await OrderItem.findOne({ where: { productId: id } });
+    console.log(existingOrders, "cek product")
     if (existingOrders) {
-      return res.status(400).json({
-        message: "Product cannot be deleted because it is associated with an order",
+      return res.status(200).json({
+        message: "Product tidak dapat di hapus",
       });
     }
 
