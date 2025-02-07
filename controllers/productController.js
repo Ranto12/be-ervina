@@ -7,10 +7,12 @@ import {
   ProductSize,
   ProductImage,
   OrderItem,
+  Order,
 } from "../models/index.js";
 
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
+import { Sequelize } from "sequelize";
 
 cloudinary.config({
   cloud_name: "dxkl9jrkp",
@@ -302,4 +304,64 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-export { addProduct, updateProduct, getProductById, getAllProducts, deleteProduct };
+const getOrdersByProductId = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    const orders = await Order.findAll({
+      where: { status: { [Sequelize.Op.ne]: "Completed" } },
+      attributes: ["id", "rentalStartDate", "rentalDuration"],
+      include: [
+        {
+          model: OrderItem,
+          as: "OrderItems",
+          where: { productId },
+          attributes: ["quantity"],
+        },
+      ],
+    });
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this product" });
+    }
+
+    const ordersByDate = {};
+
+    orders.forEach((order) => {
+      const rentalStartDate = new Date(order.rentalStartDate);
+      const rentalEndDate = new Date(rentalStartDate);
+      rentalEndDate.setDate(rentalEndDate.getDate() + order.rentalDuration - 1);
+
+      for (let date = new Date(rentalStartDate); date <= rentalEndDate; date.setDate(date.getDate() + 1)) {
+        const formattedDate = date.toISOString().split("T")[0];
+
+        if (!ordersByDate[formattedDate]) {
+          ordersByDate[formattedDate] = { date: formattedDate, quantity: 0 };
+        }
+
+        // Menambahkan total quantity dari semua items pada tanggal tersebut
+        ordersByDate[formattedDate].quantity += order.OrderItems.reduce((total, item) => total + item.quantity, 0);
+      }
+    });
+
+    const groupedOrders = Object.values(ordersByDate);
+
+    res.status(200).json({
+      message: "Orders fetched successfully",
+      ordersByDate: groupedOrders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching orders",
+      error: error.message,
+    });
+  }
+};
+
+
+
+export { addProduct, updateProduct, getProductById, getAllProducts, deleteProduct, getOrdersByProductId };

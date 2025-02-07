@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { Cart, ImagesPayment, Order, OrderItem, Payment, Product, ProductSize, ReturnShipment, Shipment } from "../models/index.js";
 import { Sequelize } from "sequelize";
+import { format } from "date-fns";
 
 const createOrder = async (req, res) => {
   const {
@@ -650,6 +651,90 @@ const updateStockByOrderId = async (req, res) => {
   }
 };
 
+const getOrdersByRentalDate = async (req, res) => {
+  try {
+    // Fetch orders where status is not "Completed"
+    const orders = await Order.findAll({
+      where: { status: { [Sequelize.Op.ne]: 'Completed' } },
+      attributes: [
+        "id",
+        "userId",
+        "customerName",
+        "rentalStartDate",
+        "rentalDuration",
+        "status",
+      ],
+      include: [
+        {
+          model: OrderItem,
+          as: "OrderItems",
+          include: [
+            {
+              model: Product, 
+              as: "Product",
+              attributes: ["id", "name",  "price"], // Pilih atribut yang dibutuhkan
+            },
+          ],
+        },
+      ],
+    });
+
+    // Group orders by rentalDate and add count
+    const ordersByDate = {};
+
+    orders.forEach((order) => {
+      const rentalStartDate = new Date(order.rentalStartDate);
+      const rentalEndDate = new Date(rentalStartDate);
+      rentalEndDate.setDate(rentalEndDate.getDate() + order.rentalDuration - 1); // Calculate the rental end date
+
+      // Loop through each day in the rental period
+      for (let date = rentalStartDate; date <= rentalEndDate; date.setDate(date.getDate() + 1)) {
+        const rentalDate = format(date, 'yyyy-MM-dd'); // Format the date to YYYY-MM-DD
+
+        // Create a new entry for this rental date if it doesn't exist
+        if (!ordersByDate[rentalDate]) {
+          ordersByDate[rentalDate] = {
+            rentalDate,
+            count: 0,
+            orders: [],
+          };
+        }
+
+        // Add the current order to the orders list and increment the count
+        ordersByDate[rentalDate].orders.push({
+          orderId: order.id,
+          customerName: order.customerName,
+          rentalStartDate: format(rentalStartDate, 'yyyy-MM-dd'),
+          status: order.status,
+          items: order.OrderItems.map(item => ({
+            productId: item.Product?.id,
+            productName: item.Product?.name,
+            productDescription: item.Product?.description,
+            productPrice: item.Product?.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          })),
+        });
+        ordersByDate[rentalDate].count++;
+      }
+    });
+
+    // Convert ordersByDate object to an array for the response
+    const groupedOrders = Object.values(ordersByDate);
+
+    res.status(200).json({
+      message: "Orders by rental date fetched successfully",
+      ordersByRentalDate: groupedOrders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching orders by rental date",
+      error: error.message,
+    });
+  }
+};
+
 export {
   getOrders,
   cancelOrder,
@@ -661,4 +746,5 @@ export {
   getCompletedOrdersByuserId,
   getOrdersByMonth,
   updateStockByOrderId,
+  getOrdersByRentalDate
 };

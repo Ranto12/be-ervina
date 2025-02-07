@@ -9,7 +9,8 @@ import {
   getCompletedOrders,
   updateOrderStatus,
   getOrdersByMonth,
-  updateStockByOrderId
+  updateStockByOrderId,
+  getOrdersByRentalDate
 } from "../controllers/orderController.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.post("/cancel/:orderId", cancelOrder);
 router.post("/status", updateOrderStatus);
 router.post("/updateStockByOrderId", updateStockByOrderId);
 
+router.get("/getallbyDate", getOrdersByRentalDate);
 router.get("/all", getOrders);
 router.get("/getAllComplated", getCompletedOrders)
 router.get("/AllUserId/:userId", getOrdersByUserId);
