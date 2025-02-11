@@ -12,10 +12,10 @@ const User = sequelize.define('User', {
   address: {
     type: DataTypes.STRING, allowNull: true
   },
-  province: {
+  district: {
     type: DataTypes.STRING, allowNull: true
   },
-  district: {
+  sub_district: {
     type: DataTypes.STRING, allowNull: true
   },
   about:{

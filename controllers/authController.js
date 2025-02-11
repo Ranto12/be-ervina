@@ -116,7 +116,7 @@ const getUserById = async (req, res) => {
 
   try {
     const user = await User.findByPk(id, {
-      attributes: ["name", "email", "address", "about", "province", "district"],
+      attributes: ["name", "email", "address", "about", "sub_district", "district"],
     });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -129,7 +129,7 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, address, about, province, district } = req.body;
+  const { name, email, address, about, sub_district, district } = req.body;
 
   try {
     // Find user by id
@@ -145,8 +145,8 @@ const updateUser = async (req, res) => {
       email: email || user.email,
       address: address || user.address,
       about: about || user.about,
-      province: province || user.province,
       district: district || user.district,
+      sub_district: sub_district || user.sub_district,
     });
 
     return res.status(200).json(updatedUser);
